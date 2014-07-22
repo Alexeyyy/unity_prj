@@ -46,8 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\GridLatticeFormation.cs" />
-     <Compile Include="Assets\Scripts\Grid_ObstacleDetection.cs" />
+     <Compile Include="Assets\Scripts\Grid_LatticeFormation.cs" />
+     <Compile Include="Assets\Scripts\Grid_ObjectDetection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

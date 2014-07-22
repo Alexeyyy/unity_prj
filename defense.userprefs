@@ -1,8 +1,9 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\GridLatticeFormation.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Grid_LatticeFormation.cs">
     <Files>
-      <File FileName="Assets\Scripts\GridLatticeFormation.cs" Line="22" Column="2" />
+      <File FileName="Assets\Scripts\Grid_ObjectDetection.cs" Line="8" Column="1" />
+      <File FileName="Assets\Scripts\Grid_LatticeFormation.cs" Line="25" Column="43" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
