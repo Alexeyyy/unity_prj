@@ -1,0 +1,11 @@
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\Assembly-CSharp.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\Assembly-CSharp.pdb
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\UnityEditor.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\UnityEngine.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\Mono.Cecil.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\nunit.framework.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\Unity.DataContract.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\obj\Debug\Assembly-CSharp.dll
+E:\САМООБРАЗОВАНИЕ\unity_3d\defense\obj\Debug\Assembly-CSharp.pdb
