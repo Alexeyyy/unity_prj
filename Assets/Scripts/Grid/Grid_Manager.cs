@@ -4,6 +4,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
+//Класс, описывающий клетку игрового поля
+public class MapCell
+{
+    private GameObject cell_object;
+    private int cell_identificator;
+    private int cell_x;
+    private int cell_y;
+
+    public GameObject Cell_Object { get { return cell_object; } }
+    public int Cell_Identificator { get { return cell_identificator; } set { cell_identificator = value; } }
+    public int Cell_X { get { return cell_x; } }
+    public int Cell_Y { get { return cell_y; } }
+
+    public MapCell(GameObject fObj, int x, int y)
+    {
+        cell_identificator = -1;
+        cell_object = fObj;
+        cell_x = x;
+        cell_y = y;
+    }
+
+    public MapCell(GameObject fObj, int fId, int x, int y)
+    {
+        cell_object = fObj;
+        cell_identificator = fId;
+        cell_x = x;
+        cell_y = y;
+    }
+}
+
 public class Grid_Manager : MonoBehaviour {
     private static Grid_Manager s_Instance = null;
     public static Grid_Manager S_Instance
@@ -23,18 +53,15 @@ public class Grid_Manager : MonoBehaviour {
     }
 
 	public GameObject grid_cell; //"объект" сетки поля
-	public GameObject background; //картинка на заднем плане
 	private Vector2 initial_point; //стартовые координаты для формирования сетки 
 	public int grid_width; //ширина сетки (число "квадратиков" сетки по ширине)
 	public int grid_height; //высота сетки (число "квадратиков" сетки по высоте)
+        
+    private MapCell[,] game_field;
+    public MapCell[,] Game_Field { get { return game_field; } }
 
-    private GameObject[,] grid_cells;
-    public GameObject[,] Grid_Cells { get { return grid_cells; } }
-	
-    private int[,] grid; //игровое поле в виде int[,], где 0 - проходимый, 1 - непроходимый
-	public int[,] Grid { get { return grid; } set { grid = value; } }
-    
-    private bool f_initialFormation = false; //для изначального формирования поля
+    private bool isInitiallyFormed = false; //для изначального формирования поля
+    public bool IsInitiallyFormed { get { return isInitiallyFormed; } }
 
     /*Функция построения сетки из пустых объектов с тегами gridCell.*/
     private void InitGrid()
@@ -48,9 +75,8 @@ public class Grid_Manager : MonoBehaviour {
                 var cell = Instantiate(grid_cell, new Vector3(grid_cell.GetComponent<BoxCollider2D>().size.x * j, 
                                                    grid_cell.GetComponent<BoxCollider2D>().size.y * i, 
                                                    0), Quaternion.identity);
-                grid_cells[row, col] = cell as GameObject;
-                grid_cells[row, col].GetComponent<Grid_ObjectDetection>().X_Pos = row;
-                grid_cells[row, col].GetComponent<Grid_ObjectDetection>().Y_Pos = col;
+              
+                game_field[row, col] = new MapCell(cell as GameObject, row, col);
                 col++;
             }
             row--;
@@ -61,36 +87,34 @@ public class Grid_Manager : MonoBehaviour {
     /*Функция заполнения сетки 1 и 0*/
     private void FillGrid()
     {
-        for (int i = 0; i < grid.GetLength(0); i++)
+        for (int i = 0; i < game_field.GetLength(0); i++)
         {
-            for (int j = 0; j < grid.GetLength(1); j++)
+            for (int j = 0; j < game_field.GetLength(1); j++)
             {
-                grid[i, j] = grid_cells[i, j].GetComponent<Grid_ObjectDetection>().Detector;
+                game_field[i, j].Cell_Identificator = game_field[i, j].Cell_Object.GetComponent<Grid_ObjectDetection>().Detector;
             }
         }
     }
-   
-	void Awake() 
+
+    private void Awake()
     {
         initial_point = new Vector2(0, 0);//background.transform.position;
-        grid = new int[grid_height, grid_width];
-        grid_cells = new GameObject[grid_height, grid_width];
-	}
+        game_field = new MapCell[grid_height, grid_width];
+    }
 
 	// Use this for initialization
-	void Start() 
+	private void Start() 
     {
 		InitGrid();
 	}
     
 	// Update is called once per frame
-	void Update() 
+	private void Update() 
     {
-        if (!f_initialFormation)
+        if (!isInitiallyFormed)
         {
             FillGrid();
-            //Servant.PrintArrayToFile(grid, "path.txt");
-            f_initialFormation = true;
+            isInitiallyFormed = true;
         }
 	}
 }

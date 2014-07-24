@@ -11,7 +11,7 @@ public class Node : IComparable
     public float estimatedCost; //H-параметр
     public bool isObstacle;
     public Node parent;
-    public GameObject cell;
+    public MapCell cell;
 
     public Node()
     {
@@ -21,7 +21,7 @@ public class Node : IComparable
         this.parent = null;
     }
 
-    public Node(GameObject fCell)
+    public Node(MapCell fCell)
     {
         this.estimatedCost = 0.0f;
         this.nodeTotalCost = 1.0f;
@@ -85,43 +85,48 @@ public class A_Star
 {
     public static PriorityQueue closedList, openedList; //закрытый список узлов grid-a, открытый список узлов grid-a
 
-    private static void AssignNeighbour(ArrayList fNeighbours, GameObject fCell)
+    private static void AssignNeighbour(ArrayList fNeighbours, MapCell fCell)
     {
-        if (fCell.GetComponent<Grid_ObjectDetection>().Detector != 1)
+        if (fCell.Cell_Identificator != 1)
         {
             fNeighbours.Add(fCell);
+        }
+        else
+        {
+            Debug.Log("HUI!!!");
         }
     }
 
     //Получение клеток-соседей текущей точки
-    public static ArrayList GetCellNeighbours(GameObject fCell)
+    public static ArrayList GetCellNeighbours(MapCell fCell)
     {
         ArrayList neigbours = new ArrayList();
-        int row = fCell.GetComponent<Grid_ObjectDetection>().X_Pos,
-            col = fCell.GetComponent<Grid_ObjectDetection>().Y_Pos;
+        int row = fCell.Cell_X,
+            col = fCell.Cell_Y;
+
 
         //Ищем соседей (для начала сверху, снизу, слева и справа)
         //сверху
         if (row > 0)
         {
-            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Grid_Cells[row - 1, col]);
+            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Game_Field[row - 1, col]);
         }
         //справа
         if (col < Grid_Manager.S_Instance.grid_width - 1)
         {
-            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Grid_Cells[row, col + 1]);
+            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Game_Field[row, col + 1]);
          }
 
         //слева
         if (col > 0)
         {
-            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Grid_Cells[row, col - 1]);
+            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Game_Field[row, col - 1]);
         }
 
         //снизу
         if (row < Grid_Manager.S_Instance.grid_height - 1)
         {
-            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Grid_Cells[row + 1, col]);
+            AssignNeighbour(neigbours, Grid_Manager.S_Instance.Game_Field[row + 1, col]);
         }
 
         return neigbours;
@@ -130,7 +135,7 @@ public class A_Star
     //расстоние до цели от текущей клетки
     public static float GetHeuristicEstimateCost(Node fCurrentCell, Node fGoalCell)
     {
-        Vector3 vectorCost = fCurrentCell.cell.transform.position - fGoalCell.cell.transform.position;
+        Vector3 vectorCost = fCurrentCell.cell.Cell_Object.transform.position - fGoalCell.cell.Cell_Object.transform.position;
         return vectorCost.magnitude;
     }
 
@@ -149,7 +154,7 @@ public class A_Star
         {
             node = openedList.GetFirst();
             //Проверяем текущий Node не является ли целью
-            if (node.cell.transform.position == fGoal.cell.transform.position)
+            if (node.cell.Cell_Object.transform.position == fGoal.cell.Cell_Object.transform.position)
                 return CalculatePath(node);
 
             //Создаем список, хранящий всех соседей
@@ -158,8 +163,8 @@ public class A_Star
 
             for (int i = 0; i < neighbours.Count; i++)
             {
-                Node neighbourNode = new Node(neighbours[i] as GameObject);
-                Debug.Log("!!!" + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().X_Pos + " " + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().Y_Pos);
+                Node neighbourNode = new Node(neighbours[i] as MapCell);
+                //Debug.Log("!!!" + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().X_Pos + " " + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().Y_Pos);
                 if (!closedList.Contains(neighbourNode))
                 {
                     float cost = GetHeuristicEstimateCost(neighbourNode, fGoal);
@@ -183,7 +188,7 @@ public class A_Star
             openedList.Remove(node);
         }
 
-        if (node.cell.transform.position != fGoal.cell.transform.position)
+        if (node.cell.Cell_Object.transform.position != fGoal.cell.Cell_Object.transform.position)
         {
             Debug.Log("Error!");
             return null;
@@ -239,17 +244,11 @@ public class PathFinding_A_Star : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (!iss)
+        if (!iss && Grid_Manager.S_Instance.IsInitiallyFormed)
         {
-            ArrayList objcts = A_Star.GetCellNeighbours(Grid_Manager.S_Instance.Grid_Cells[0, 0]);
-            foreach (GameObject obj in objcts)
-            {
-                Debug.Log(obj.GetComponent<Grid_ObjectDetection>().X_Pos + " " + obj.GetComponent<Grid_ObjectDetection>().Y_Pos);
-            }
             iss = true;
 
-            //Debug.Log("Pray for the path algorithm!");
-            ArrayList path = A_Star.FindPath(new Node(Grid_Manager.S_Instance.Grid_Cells[0,0]), new Node(Grid_Manager.S_Instance.Grid_Cells[2,3])); //36
+            ArrayList path = A_Star.FindPath(new Node(Grid_Manager.S_Instance.Game_Field[0, 0]), new Node(Grid_Manager.S_Instance.Game_Field[6, 9])); //36
             if (path == null)
                 Debug.Log("NULL");
             else
@@ -259,9 +258,20 @@ public class PathFinding_A_Star : MonoBehaviour {
             {
                 for (int i = 0; i < path.Count; i++)
                 {
-                    s.WriteLine((path[i] as Node).cell.GetComponent<Grid_ObjectDetection>().X_Pos + " " + (path[i] as Node).cell.GetComponent<Grid_ObjectDetection>().Y_Pos);
+                    s.WriteLine((path[i] as Node).cell.Cell_X + " " + (path[i] as Node).cell.Cell_Y);
                 }
             }
         }
+
+        string str = string.Empty;
+        for (int i = 0; i < Grid_Manager.S_Instance.Game_Field.GetLength(0); i++)
+        {
+            for (int j = 0; j < Grid_Manager.S_Instance.Game_Field.GetLength(1); j++)
+            {
+                str += Grid_Manager.S_Instance.Game_Field[i, j].Cell_Identificator.ToString();
+            }
+            str += "\n";
+        }
+        Debug.Log(str);
 	}
 }
