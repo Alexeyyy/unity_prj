@@ -9,7 +9,6 @@ public class Node : IComparable
 {
     public float nodeTotalCost; //G-параметр
     public float estimatedCost; //H-параметр
-    public bool isObstacle;
     public Node parent;
     public MapCell cell;
 
@@ -17,7 +16,6 @@ public class Node : IComparable
     {
         this.estimatedCost = 0.0f;
         this.nodeTotalCost = 1.0f;
-        this.isObstacle = false;
         this.parent = null;
     }
 
@@ -25,14 +23,8 @@ public class Node : IComparable
     {
         this.estimatedCost = 0.0f;
         this.nodeTotalCost = 1.0f;
-        this.isObstacle = false;
         this.parent = null;
         this.cell = fCell;
-    }
-
-    public void MarkAsObstacle() 
-    {
-        this.isObstacle = true;
     }
 
     public int CompareTo(object fObj)
@@ -90,10 +82,6 @@ public class A_Star
         if (fCell.Cell_Identificator != 1)
         {
             fNeighbours.Add(fCell);
-        }
-        else
-        {
-            Debug.Log("HUI!!!");
         }
     }
 
@@ -153,9 +141,18 @@ public class A_Star
         while (openedList.Length != 0)
         {
             node = openedList.GetFirst();
+            Debug.Log(node.cell.Cell_X + " ::::::::::::: " + node.cell.Cell_Y);
             //Проверяем текущий Node не является ли целью
             if (node.cell.Cell_Object.transform.position == fGoal.cell.Cell_Object.transform.position)
+            {
+                Debug.Log("Calculated1");
                 return CalculatePath(node);
+            }
+
+            //Заполняем текущий Node в закрытый список
+            closedList.Push(node);
+            //И удаляем его из открытого
+            openedList.Remove(node);
 
             //Создаем список, хранящий всех соседей
             ArrayList neighbours = new ArrayList();
@@ -164,7 +161,7 @@ public class A_Star
             for (int i = 0; i < neighbours.Count; i++)
             {
                 Node neighbourNode = new Node(neighbours[i] as MapCell);
-                //Debug.Log("!!!" + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().X_Pos + " " + neighbourNode.cell.GetComponent<Grid_ObjectDetection>().Y_Pos);
+                Debug.Log("-------------" + node.cell.Cell_X + " ::::::::::::: " + node.cell.Cell_Y);
                 if (!closedList.Contains(neighbourNode))
                 {
                     float cost = GetHeuristicEstimateCost(neighbourNode, fGoal);
@@ -182,10 +179,7 @@ public class A_Star
                 }
             }
 
-            //Заполняем текущий Node в закрытый список
-            closedList.Push(node);
-            //И удаляем его из открытого
-            openedList.Remove(node);
+
         }
 
         if (node.cell.Cell_Object.transform.position != fGoal.cell.Cell_Object.transform.position)
@@ -194,6 +188,7 @@ public class A_Star
             return null;
         }
 
+        Debug.Log("Calculated2");
         return CalculatePath(node);
     }
 
@@ -211,44 +206,27 @@ public class A_Star
    
 }
 
+public static class ClickedField
+{
+    public static int pos_x = -1; //позиция по x
+    public static int pos_y = -1; //позиция по y
+    public static bool isClickedCellChanged = false; //изменилась ли кликнутая клетка
+}
+
 public class PathFinding_A_Star : MonoBehaviour {
     private Vector2 start_point;
     private string current_grid_cell_name;
     private Vector2 goal_point;
 
     private bool iss = false;
-
-    private void OnTriggerStay2D(Collider2D fCollider)
-    {
-        /*Получаем клетку, где в данный момент стоит игрок*/
-        if (fCollider.tag == "gridCell" && this.transform.position.x < fCollider.transform.position.x + fCollider.GetComponent<BoxCollider2D>().size.x/2
-                                        && this.transform.position.x > fCollider.transform.position.x - fCollider.GetComponent<BoxCollider2D>().size.x/2
-                                        && this.transform.position.y > fCollider.transform.position.y - fCollider.GetComponent<BoxCollider2D>().size.y/2
-                                        && this.transform.position.y < fCollider.transform.position.y + fCollider.GetComponent<BoxCollider2D>().size.y/2
-            )
-        {
-            /*current_grid_cell_name = fCollider.GetComponent<Grid_ObjectDetection>().Name;
-            Debug.Log("!" + current_grid_cell_name);*/
-        }
-    }
-
-    private void GetStartCell()
-    {
-       
-    }
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
+    
 	// Update is called once per frame
 	void Update () {
-        if (!iss && Grid_Manager.S_Instance.IsInitiallyFormed)
+        /*if (!iss && Grid_Manager.S_Instance.IsInitiallyFormed)
         {
             iss = true;
 
-            ArrayList path = A_Star.FindPath(new Node(Grid_Manager.S_Instance.Game_Field[0, 0]), new Node(Grid_Manager.S_Instance.Game_Field[6, 9])); //36
+            ArrayList path = A_Star.FindPath(new Node(Grid_Manager.S_Instance.Game_Field[0, 0]), new Node(Grid_Manager.S_Instance.Game_Field[5, 9])); //36
             if (path == null)
                 Debug.Log("NULL");
             else
@@ -261,9 +239,9 @@ public class PathFinding_A_Star : MonoBehaviour {
                     s.WriteLine((path[i] as Node).cell.Cell_X + " " + (path[i] as Node).cell.Cell_Y);
                 }
             }
-        }
-
-        string str = string.Empty;
+        }*/
+        
+        /*string str = string.Empty;
         for (int i = 0; i < Grid_Manager.S_Instance.Game_Field.GetLength(0); i++)
         {
             for (int j = 0; j < Grid_Manager.S_Instance.Game_Field.GetLength(1); j++)
@@ -272,6 +250,6 @@ public class PathFinding_A_Star : MonoBehaviour {
             }
             str += "\n";
         }
-        Debug.Log(str);
+        Debug.Log(str);*/
 	}
 }

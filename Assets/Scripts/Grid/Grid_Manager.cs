@@ -75,7 +75,9 @@ public class Grid_Manager : MonoBehaviour {
                 var cell = Instantiate(grid_cell, new Vector3(grid_cell.GetComponent<BoxCollider2D>().size.x * j, 
                                                    grid_cell.GetComponent<BoxCollider2D>().size.y * i, 
                                                    0), Quaternion.identity);
-              
+                //устанавливаем позицию и в саму клетку
+                (cell as GameObject).GetComponent<Grid_ObjectDetection>().Pos_X = row;
+                (cell as GameObject).GetComponent<Grid_ObjectDetection>().Pos_Y = col;
                 game_field[row, col] = new MapCell(cell as GameObject, row, col);
                 col++;
             }
