@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
+using System;
 
 public class Player_Unit : MonoBehaviour {
     public float speed;
@@ -34,10 +35,13 @@ public class Player_Unit : MonoBehaviour {
         return null;
     }
 
+    //Поиск маршрута (зависит от Update())
     private void LaunchPathSearch()
     {
         if (!isSelected)
+        {
             ClickedField.isClickedCellChanged = false;
+        }
 
         if (isSelected && ClickedField.isClickedCellChanged)
         {
@@ -48,13 +52,17 @@ public class Player_Unit : MonoBehaviour {
 
             if (goalCell.Cell_Identificator != 1)
             {
+                DateTime t1 = DateTime.Now;   
                 path = A_Start_PathFinding.FindPath(startCell, goalCell);
+                DateTime t2 = DateTime.Now;
+                Debug.Log("Time" + (t1-t2).Milliseconds);
                 isMotionOver = false;
                 ClickedField.isClickedCellChanged = false;
             }
         }
     }
 
+    //Функция движения по вычисленному А* маршруту (зависит от Update())
     private void MoveAlongPath()
     {
         if (!isMotionOver)
@@ -94,6 +102,7 @@ public class Player_Unit : MonoBehaviour {
 
 	// Update is called once per frame
 	private void Update () {
+        //Debug.Log(name + " " + isSelected + " " + ClickedField.isClickedCellChanged);
         //если выбрали юнита и кликнули куда ему идти то
         LaunchPathSearch();
         MoveAlongPath();
