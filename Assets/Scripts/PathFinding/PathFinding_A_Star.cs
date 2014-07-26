@@ -1,25 +1,25 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.IO;
 
 //Класс, описывающий клетку на пути юнита
-public class Node : IComparable
+public class Node333 : IComparable
 {
     public float nodeTotalCost; //G-параметр
     public float estimatedCost; //H-параметр
-    public Node parent;
+    public Node333 parent;
     public MapCell cell;
 
-    public Node()
+    public Node333()
     {
         this.estimatedCost = 0.0f;
         this.nodeTotalCost = 1.0f;
         this.parent = null;
     }
 
-    public Node(MapCell fCell)
+    public Node333(MapCell fCell)
     {
         this.estimatedCost = 0.0f;
         this.nodeTotalCost = 1.0f;
@@ -29,7 +29,7 @@ public class Node : IComparable
 
     public int CompareTo(object fObj)
     {
-        Node node = (Node)fObj;
+        Node333 node = (Node333)fObj;
         //-1, значит, что fObj перед текущим
         if (this.estimatedCost < node.estimatedCost)
             return -1;
@@ -51,22 +51,22 @@ public class PriorityQueue
         return this.nodes.Contains(fNode);
     }
     
-    public Node GetFirst()
+    public Node333 GetFirst()
     {
         if (this.nodes.Count > 0)
         {
-            return (Node)this.nodes[0];
+            return (Node333)this.nodes[0];
         }
         return null;
     }
 
-    public void Push(Node fNode)
+    public void Push(Node333 fNode)
     {
         this.nodes.Add(fNode);
         this.nodes.Sort();
     }
 
-    public void Remove(Node fNode)
+    public void Remove(Node333 fNode)
     {
         this.nodes.Remove(fNode);
         this.nodes.Sort();
@@ -121,14 +121,14 @@ public class A_Star
     }
 
     //расстоние до цели от текущей клетки
-    public static float GetHeuristicEstimateCost(Node fCurrentCell, Node fGoalCell)
+    public static float GetHeuristicEstimateCost(Node333 fCurrentCell, Node333 fGoalCell)
     {
         Vector3 vectorCost = fCurrentCell.cell.Cell_Object.transform.position - fGoalCell.cell.Cell_Object.transform.position;
         return vectorCost.magnitude;
     }
 
     //Поиск пути
-    public static ArrayList FindPath(Node fStart, Node fGoal)
+    public static ArrayList FindPath(Node333 fStart, Node333 fGoal)
     {
         openedList = new PriorityQueue();
         openedList.Push(fStart);
@@ -136,20 +136,20 @@ public class A_Star
         fStart.estimatedCost = GetHeuristicEstimateCost(fStart, fGoal);
 
         closedList = new PriorityQueue();
-        Node node = null;
+        Node333 node = null;
 
         while (openedList.Length != 0)
         {
             node = openedList.GetFirst();
             Debug.Log(node.cell.Cell_X + " ::::::::::::: " + node.cell.Cell_Y);
-            //Проверяем текущий Node не является ли целью
+            //Проверяем текущий Node333 не является ли целью
             if (node.cell.Cell_Object.transform.position == fGoal.cell.Cell_Object.transform.position)
             {
                 Debug.Log("Calculated1");
                 return CalculatePath(node);
             }
 
-            //Заполняем текущий Node в закрытый список
+            //Заполняем текущий Node333 в закрытый список
             closedList.Push(node);
             //И удаляем его из открытого
             openedList.Remove(node);
@@ -160,7 +160,7 @@ public class A_Star
 
             for (int i = 0; i < neighbours.Count; i++)
             {
-                Node neighbourNode = new Node(neighbours[i] as MapCell);
+                Node333 neighbourNode = new Node333(neighbours[i] as MapCell);
                 Debug.Log("-------------" + node.cell.Cell_X + " ::::::::::::: " + node.cell.Cell_Y);
                 if (!closedList.Contains(neighbourNode))
                 {
@@ -192,7 +192,7 @@ public class A_Star
         return CalculatePath(node);
     }
 
-    public static ArrayList CalculatePath(Node fNode)
+    public static ArrayList CalculatePath(Node333 fNode)
     {
         ArrayList path = new ArrayList();
         while (fNode != null)
@@ -204,13 +204,6 @@ public class A_Star
         return path;
     }
    
-}
-
-public static class ClickedField
-{
-    public static int pos_x = -1; //позиция по x
-    public static int pos_y = -1; //позиция по y
-    public static bool isClickedCellChanged = false; //изменилась ли кликнутая клетка
 }
 
 public class PathFinding_A_Star : MonoBehaviour {
@@ -226,7 +219,7 @@ public class PathFinding_A_Star : MonoBehaviour {
         {
             iss = true;
 
-            ArrayList path = A_Star.FindPath(new Node(Grid_Manager.S_Instance.Game_Field[0, 0]), new Node(Grid_Manager.S_Instance.Game_Field[5, 9])); //36
+            ArrayList path = A_Star.FindPath(new Node333(Grid_Manager.S_Instance.Game_Field[0, 0]), new Node333(Grid_Manager.S_Instance.Game_Field[5, 9])); //36
             if (path == null)
                 Debug.Log("NULL");
             else
@@ -236,7 +229,7 @@ public class PathFinding_A_Star : MonoBehaviour {
             {
                 for (int i = 0; i < path.Count; i++)
                 {
-                    s.WriteLine((path[i] as Node).cell.Cell_X + " " + (path[i] as Node).cell.Cell_Y);
+                    s.WriteLine((path[i] as Node333).cell.Cell_X + " " + (path[i] as Node333).cell.Cell_Y);
                 }
             }
         }*/
@@ -250,6 +243,6 @@ public class PathFinding_A_Star : MonoBehaviour {
             }
             str += "\n";
         }
-        Debug.Log(str);*/
+        Debug.Log(str);
 	}
-}
+}*/

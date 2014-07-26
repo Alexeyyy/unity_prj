@@ -3,40 +3,53 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using System.Linq;
 
-public class PathFinder2 : MonoBehaviour
+//Класс, описывающий клетку, по которой кликнули
+public static class ClickedField
 {
-    public class Node2
-    {
-        public MapCell Cell { get; set; }
-        public int DistanceFromStart { get; set; }
-        public Node2 Parent { get; set; }
-        public int HeuristicDistanceToGoal { get; set; }
-        public int PredictableDistanceToGoal
-        {
-            get
-            {
-                return this.HeuristicDistanceToGoal + this.DistanceFromStart;
-            }
-        }
+    public static int pos_x = -1; //позиция по x
+    public static int pos_y = -1; //позиция по y
+    public static bool isClickedCellChanged = false; //изменилась ли кликнутая клетка
+}
 
-        public Node2(MapCell fCell, int fDistanceFromStart, Node2 fParent, int fHeuristicDistance)
+//Класс, описывающий точку поля
+public class Node
+{
+    public MapCell Cell { get; set; }
+    public int DistanceFromStart { get; set; }
+    public Node Parent { get; set; }
+    public int HeuristicDistanceToGoal { get; set; }
+    public int PredictableDistanceToGoal
+    {
+        get
         {
-            Cell = fCell;
-            DistanceFromStart = fDistanceFromStart;
-            Parent = fParent;
-            HeuristicDistanceToGoal = fHeuristicDistance;
+            return this.HeuristicDistanceToGoal + this.DistanceFromStart;
         }
     }
 
-    private int FindHeuristicDistance(MapCell fCellFrom, MapCell fCellTo)
+    public Node(MapCell fCell, int fDistanceFromStart, Node fParent, int fHeuristicDistance)
+    {
+        Cell = fCell;
+        DistanceFromStart = fDistanceFromStart;
+        Parent = fParent;
+        HeuristicDistanceToGoal = fHeuristicDistance;
+    }
+}
+
+//Класс, описывающий алгоритм поиска пути
+public static class A_Start_PathFinding
+{
+    //Нахождение расстояния (длины вектора) от текущей точки до конечной
+    private static int FindHeuristicDistance(MapCell fCellFrom, MapCell fCellTo)
     {
         return Mathf.Abs(fCellFrom.Cell_X - fCellTo.Cell_X) + Mathf.Abs(fCellFrom.Cell_Y - fCellTo.Cell_Y);
     }
 
-    private Node2 FindMinimalHeuristicNode(List<Node2> fOpenedList)
+    //Поиск минимума среди Nodes в открытом списке
+    private static Node FindMinimalHeuristicNode(List<Node> fOpenedList)
     {
-        Node2 node = fOpenedList[0];
+        Node node = fOpenedList[0];
         for (int i = 0; i < fOpenedList.Count; i++)
         {
             if (fOpenedList[i].PredictableDistanceToGoal < node.PredictableDistanceToGoal)
@@ -47,18 +60,19 @@ public class PathFinder2 : MonoBehaviour
         return node;
     }
 
-    private void AssignNeighbour(List<Node2> fNeighbours, MapCell fCell, Node2 fNode, Node2 fGoalNode)
+    //Присвоение клетки-соседа
+    private static void AssignNeighbour(List<Node> fNeighbours, MapCell fCell, Node fNode, Node fGoalNode)
     {
         if (fCell.Cell_Identificator != 1)
         {
-            fNeighbours.Add(new Node2(fCell, fNode.DistanceFromStart + 1, fNode, FindHeuristicDistance(fCell, fGoalNode.Cell)));
+            fNeighbours.Add(new Node(fCell, fNode.DistanceFromStart + 1, fNode, FindHeuristicDistance(fCell, fGoalNode.Cell))); //+1, потому что расстояние между соседними клетками 1
         }
     }
 
     //Получение клеток-соседей текущей точки
-    private List<Node2> GetCellNeighbours(Node2 fNode, Node2 fGoalNode)
+    private static List<Node> GetCellNeighbours(Node fNode, Node fGoalNode)
     {
-        List<Node2> neigbours = new List<Node2>();
+        List<Node> neigbours = new List<Node>();
         int row = fNode.Cell.Cell_X,
             col = fNode.Cell.Cell_Y;
 
@@ -90,9 +104,9 @@ public class PathFinder2 : MonoBehaviour
     }
 
     //проверка на уже проходимость
-    private bool CheckOnAlreadyWrittenCells(Node2 fNode, List<Node2> fNodesList)
+    private static bool CheckOnAlreadyWrittenCells(Node fNode, List<Node> fNodesList)
     {
-        foreach(Node2 node in fNodesList)
+        foreach (Node node in fNodesList)
         {
             if (node.Cell == fNode.Cell)
             {
@@ -102,9 +116,10 @@ public class PathFinder2 : MonoBehaviour
         return false;
     }
 
-    private Node2 CheckOnSamePositions(Node2 fNode, List<Node2> fNodesList)
+    //Получает Node, если он уже содержится в списке
+    private static Node CheckOnSamePositions(Node fNode, List<Node> fNodesList)
     {
-        foreach (Node2 node in fNodesList)
+        foreach (Node node in fNodesList)
         {
             if (node.Cell.Cell_X == fNode.Cell.Cell_X && node.Cell.Cell_Y == fNode.Cell.Cell_Y)
             {
@@ -114,12 +129,13 @@ public class PathFinder2 : MonoBehaviour
         return null;
     }
 
-    private int[,] CalculatePath(List<Node2> fClosedList)
+    //Вычисление пути
+    private static int[,] CalculatePath(List<Node> fClosedList)
     {
-        List<Node2> path = new List<Node2>();
-        Node2 node = fClosedList[fClosedList.Count - 1];
+        List<Node> path = new List<Node>();
+        Node node = fClosedList[fClosedList.Count - 1];
 
-        while(node != null) 
+        while (node != null)
         {
             path.Add(node);
             node = node.Parent;
@@ -129,7 +145,7 @@ public class PathFinder2 : MonoBehaviour
 
         int[,] route = new int[path.Count, 2];
 
-        for(int i = 0; i < path.Count; i++)
+        for (int i = 0; i < path.Count; i++)
         {
             route[i, 0] = path[i].Cell.Cell_X;
             route[i, 1] = path[i].Cell.Cell_Y;
@@ -138,18 +154,21 @@ public class PathFinder2 : MonoBehaviour
         return route;
     }
 
-    public int[,] FindPath(Node2 fStartNode, Node2 fGoalNode)
+    public static int[,] FindPath(MapCell fStart, MapCell fGoal)
     {
-        List<Node2> openedList = new List<Node2>();
-        List<Node2> closedList = new List<Node2>();
+        List<Node> openedList = new List<Node>();
+        List<Node> closedList = new List<Node>();
 
-        openedList.Add(fStartNode);
+        Node startNode = new Node(Grid_Manager.S_Instance.Game_Field[fStart.Cell_X, fStart.Cell_Y], 0, null, FindHeuristicDistance(Grid_Manager.S_Instance.Game_Field[fStart.Cell_X, fStart.Cell_Y], Grid_Manager.S_Instance.Game_Field[fGoal.Cell_X, fGoal.Cell_Y]));
+        Node goalNode = new Node(Grid_Manager.S_Instance.Game_Field[fGoal.Cell_X, fGoal.Cell_Y], 0, null, 0);
+
+        openedList.Add(startNode);
 
         while (openedList.Count > 0)
         {
-            Node2 currentNode = FindMinimalHeuristicNode(openedList);
-
-            if (currentNode.Cell == fGoalNode.Cell)
+            Node currentNode = FindMinimalHeuristicNode(openedList);
+            
+            if (currentNode.Cell == goalNode.Cell)
             {
                 closedList.Add(currentNode);
                 return CalculatePath(closedList);
@@ -157,16 +176,16 @@ public class PathFinder2 : MonoBehaviour
 
             openedList.Remove(currentNode);
             closedList.Add(currentNode);
+            
+            List<Node> neighbours = GetCellNeighbours(currentNode, goalNode);
 
-            List<Node2> neighbours = GetCellNeighbours(currentNode, fGoalNode);
-
-            foreach (Node2 neighbour in neighbours)
+            foreach (Node neighbour in neighbours)
             {
                 //если точка уже в закрытом списке, то пропускаем ее
-                if(CheckOnAlreadyWrittenCells(neighbour, closedList))
+                if (CheckOnAlreadyWrittenCells(neighbour, closedList))
                     continue;
                 //проверяем на наличие точки в открытом списке
-                Node2 openedNode = CheckOnSamePositions(neighbour, openedList);
+                Node openedNode = CheckOnSamePositions(neighbour, openedList);
 
                 if (openedNode == null)
                     openedList.Add(neighbour);
@@ -180,8 +199,11 @@ public class PathFinder2 : MonoBehaviour
 
         return null;
     }
+}
 
-
+public class PathFinder2 : MonoBehaviour
+{
+   
     public bool h = false;
     // Use this for initialization
     void Start()
@@ -190,18 +212,12 @@ public class PathFinder2 : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    /*void Update()
     {
         if (Grid_Manager.S_Instance.IsInitiallyFormed && !h)
         {
-            
-            /*Debug.Log(FindHeuristicDistance(Grid_Manager.S_Instance.Game_Field[0, 0], Grid_Manager.S_Instance.Game_Field[49, 49]));
-            h = true;
-            Debug.Log(GetCellNeighbours(Grid_Manager.S_Instance.Game_Field[0, 0]).Count);
-            Debug.Log(CheckOnAlreadyWrittenCells(new Node2(Grid_Manager.S_Instance.Game_Field[0, 0], 100, null, 10), new List<Node2>(){new Node2(Grid_Manager.S_Instance.Game_Field[0, 0], 43,null, 20)}));*/
             DateTime n = DateTime.Now;
-            int[,] route = FindPath(new Node2(Grid_Manager.S_Instance.Game_Field[0, 0], 0, null, FindHeuristicDistance(Grid_Manager.S_Instance.Game_Field[0, 0], Grid_Manager.S_Instance.Game_Field[20, 20])), 
-                                    new Node2(Grid_Manager.S_Instance.Game_Field[20, 20], 0, null, 0));
+            int[,] route = A_Start_PathFinding.FindPath(Grid_Manager.S_Instance.Game_Field[0,0], Grid_Manager.S_Instance.Game_Field[49,49]);
             DateTime m = DateTime.Now;
             TimeSpan a = m-n;
             Debug.Log("Time is " + (a.Milliseconds));
@@ -215,5 +231,5 @@ public class PathFinder2 : MonoBehaviour
             }
             h = true;
         }
-    }
+    }*/
 }
