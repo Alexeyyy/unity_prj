@@ -6,12 +6,35 @@ using System;
 public class Player_Unit : MonoBehaviour {
     public float speed;
     public string name;
-    public bool isSelected = false;
+
+    public bool isReady = false;
     
+    private bool isSelected = false;
     private int[,] path = null;
     private int index_motion = 0;
     private bool isMotionOver = true;
-        
+
+    public bool IsMotionOver
+    {
+        get { return isMotionOver; }
+        set { isMotionOver = true; }
+    }
+
+    public int[,] Path
+    {
+        get { return path; }
+    }
+
+    public int Index_Motion
+    {
+        get { return index_motion; }
+    }
+
+    public bool IsSelected
+    {
+        get { return isSelected; }
+    }
+       
     //Поиск клетки, где в данный момент находится игрок
     private MapCell GetCurrentCellLocation()
     {
@@ -58,6 +81,7 @@ public class Player_Unit : MonoBehaviour {
                 Debug.Log("Time" + (t1-t2).Milliseconds);
                 isMotionOver = false;
                 ClickedField.isClickedCellChanged = false;
+                isReady = true; 
             }
         }
     }
@@ -67,10 +91,6 @@ public class Player_Unit : MonoBehaviour {
     {
         if (!isMotionOver)
         {
-            if (!isBuilt)
-            {
-                isBuilt = true;
-            }
             if (this.transform.position != Grid_Manager.S_Instance.Game_Field[path[index_motion, 0], path[index_motion, 1]].Cell_Object.transform.position)
             {
                 this.transform.position = Vector3.MoveTowards(this.transform.position, Grid_Manager.S_Instance.Game_Field[path[index_motion, 0], path[index_motion, 1]].Cell_Object.transform.position, speed * Time.deltaTime);
@@ -98,11 +118,10 @@ public class Player_Unit : MonoBehaviour {
         index_motion = 0;
 	}
 
-    private bool isBuilt = false;
-
 	// Update is called once per frame
 	private void Update () {
-        //Debug.Log(name + " " + isSelected + " " + ClickedField.isClickedCellChanged);
+        Debug.Log(this.name + " ---- " + ClickedField.isClickedCellChanged + " " + this.isMotionOver);
+        
         //если выбрали юнита и кликнули куда ему идти то
         LaunchPathSearch();
         MoveAlongPath();
