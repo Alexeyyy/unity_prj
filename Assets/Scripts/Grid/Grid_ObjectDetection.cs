@@ -21,6 +21,7 @@ public class Grid_ObjectDetection : MonoBehaviour {
     //Срабатывает при клике на клетку игрового поля
     private void OnMouseDown()
     {
+        Debug.Log("Cell is down!");
         ClickedField.pos_x = this.pos_x;
         ClickedField.pos_y = this.pos_y;
         ClickedField.isClickedCellChanged = true;
